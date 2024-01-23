@@ -67,7 +67,7 @@ int main() {
     inputFile2.close();
     outputFile2.close();
 
-    cout << "Binary data converted to jpg: output.jpg" << endl;
+    cout << "Binary data converted to png: output.png" << endl;
     ifstream inputFile3("binary_data.txt");
 
     vector<char> characters;
@@ -76,13 +76,13 @@ int main() {
 
 
     int idx = 0;
-    string imageName = "image0.jpg";
+    string imageName = "image0.png";
     for(int i = 0; i < (characters.size()/(1920*1080))+1; i++){
         Mat image(1080, 1920, CV_8UC3, Scalar(0, 0, 0));
         for(int j = 0; j < 1080; j++){
             for(int k = 0; k < 1920; k++){
                 if(idx == characters.size()){
-                    image.at<Vec3b>(j,k) = Vec3b(255,0,0);
+                    image.at<Vec3b>(j,k) = Vec3b(0,0,255);
                     goto save;
                 }
                 else if(characters.at(idx) == '0'){
@@ -97,16 +97,25 @@ int main() {
     save:
         size_t endIdx = imageName.find('.');
         string numStr = imageName.substr(5, endIdx-5);
-        cout << "numstr: " << numStr << endl;
         int num = stoi(numStr) + 1;
         size_t len = numStr.size();
-        cout << len << endl;
         imageName.replace(5, len, to_string(num));
-        cout << imageName << endl;
 
         imwrite(imageName, image);
     }
     
     inputFile3.close();
+
+    Mat outputImage = imread("image1.png");
+    Vec3b pixelValue;
+    /*
+    for(int i = 0; i < 17; i++){
+        pixelValue = outputImage.at<Vec3b>(0,i);
+        for(int j = 0; j < 3; j++){
+            cout << static_cast<int>(pixelValue[j]) << " ";
+        }
+        cout << endl;
+    }
+*/
     return 0;
 }
