@@ -76,11 +76,12 @@ int main() {
 
 
     int idx = 0;
-    string imageName = "image0.png";
-    for(int i = 0; i < (characters.size()/(1920*1080))+1; i++){
-        Mat image(1080, 1920, CV_8UC3, Scalar(0, 0, 0));
-        for(int j = 0; j < 1080; j++){
-            for(int k = 0; k < 1920; k++){
+    int numImages = 0;
+    string imageName;
+    for(int i = 0; i < (characters.size()/(1280*720))+1; i++){
+        Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
+        for(int j = 0; j < 720; j++){
+            for(int k = 0; k < 1280; k++){
                 if(idx == characters.size()){
                     image.at<Vec3b>(j,k) = Vec3b(0,0,255);
                     goto save;
@@ -95,20 +96,16 @@ int main() {
             }
         }
     save:
-        size_t endIdx = imageName.find('.');
-        string numStr = imageName.substr(5, endIdx-5);
-        int num = stoi(numStr) + 1;
-        size_t len = numStr.size();
-        imageName.replace(5, len, to_string(num));
-
-        imwrite(imageName, image);
+        imageName = "image" + to_string(numImages) + ".png";
+        numImages++;
+        imwrite("outputImages/" + imageName, image);
     }
     
     inputFile3.close();
-
-    Mat outputImage = imread("image1.png");
     Vec3b pixelValue;
     /*
+    Mat outputImage = imread("outputImages/image1.png");
+
     for(int i = 0; i < 17; i++){
         pixelValue = outputImage.at<Vec3b>(0,i);
         for(int j = 0; j < 3; j++){
@@ -117,5 +114,32 @@ int main() {
         cout << endl;
     }
 */
+
+
+    VideoWriter video("outputVideo.avi", VideoWriter::fourcc('H', '2', '6', '4'), 30, Size(1280, 720));
+
+    for(int i = 0; i < numImages; i++){
+        cout << i << endl;
+        string filename = "outputImages/image" + to_string(i) + ".png";
+        Mat frame = imread(filename);
+        video.write(frame);
+    }
+    video.release();
+cout << 1234 << endl;
+    VideoCapture decodeVid("outputVideo.avi");
+
+    int frameNum = 0;
+    while(true){
+        Mat frame;
+        decodeVid >> frame;
+
+        if(frame.empty()) break;
+
+        string filename = "frames/frame" + to_string(frameNum) + ".png";
+        imwrite(filename, frame);
+        frameNum++;
+    }
+    decodeVid.release();
+
     return 0;
 }
