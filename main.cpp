@@ -9,7 +9,11 @@ using namespace cv;
 using namespace std;
 
 int main() {
-    ifstream inputFile("input.jpg", ios::binary);
+    string name;
+    cout << "Please type your filename with the file extension:\n";
+    cin >> name;
+
+    ifstream inputFile(name, ios::binary);
 
     ofstream outputFile("binary_data.txt", ios::binary);
 
@@ -39,7 +43,7 @@ int main() {
     ifstream inputFile2("binary_data.txt");
 
 
-    ofstream outputFile2("output.jpg", ios::binary);
+    ofstream outputFile2("After" + name, ios::binary);
 
 
     if (!inputFile2.is_open()) {
@@ -91,7 +95,15 @@ int main() {
             }
         }
     save:
-        imageName[5]++;
+        size_t endIdx = imageName.find('.');
+        string numStr = imageName.substr(5, endIdx-5);
+        cout << "numstr: " << numStr << endl;
+        int num = stoi(numStr) + 1;
+        size_t len = numStr.size();
+        cout << len << endl;
+        imageName.replace(5, len, to_string(num));
+        cout << imageName << endl;
+
         imwrite(imageName, image);
     }
     
