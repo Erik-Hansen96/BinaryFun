@@ -4,18 +4,23 @@
 #include <bitset>
 #include <sstream>
 #include <opencv2/opencv.hpp>
+#include <filesystem>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
 
 int main() {
+    
     string name;
-   // cout << "press 1 to decode or 0 to encode\n";
-   // int choice;
-    //cin >> choice;
-   // if(choice == 0){
-        cout << "Please type your filename with the file extension:\n";
-        cin >> name;
+
+    cout << "Please type your filename with the file extension:\n";
+    cin >> name;
+
+    cout << "press 1 to decode or 0 to encode\n";
+    int choice;
+    cin >> choice;
+    if(choice == 0){
 
         ifstream inputFile(name, ios::binary);
 
@@ -30,12 +35,31 @@ int main() {
             return 1;
         }
 
+        uintmax_t fileSize = filesystem::file_size(name);
+        uintmax_t target = fileSize / 100;
+        uintmax_t counter = 0;
+        int loadIdx = 0;
+
+        vector<char> characters;
+        char ch;
+    
         char buffer;
+        string loader = "                                                                                                    ";
         while (inputFile.get(buffer)) {
+
             bitset<8> binary(buffer);
             outputFile << binary;
+            characters.push_back(buffer);
+            counter++;
+            if(counter == target){
+                counter = 0;
+                cout << "Converting to binary: [" << loader << "]" << loadIdx << '%' << '\r' << flush;
+                loader[loadIdx] = '#';
+                loadIdx++;
+            }
         }
 
+        cout << "Converting to binary: " << "[####################################################################################################]100%" << endl;
 
         inputFile.close();
         outputFile.close();
@@ -44,23 +68,26 @@ int main() {
         cout << "File content saved in binary_data.txt." << endl;
 
 
-
-
-
-        ifstream inputFile3("binary_data.txt");
-
-        vector<char> characters;
-        char ch;
-        while(inputFile3.get(ch)) characters.push_back(ch);
-
-
         int idx = 0;
         int numImages = 0;
         string imageName;
+        counter = 0;
+        loader = "                                                                                                    ";
+        target = characters.size() / 100;
+        loadIdx = 0;
+
+
         for(int i = 0; i < (characters.size()/(1280*720))+1; i++){
             Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
             for(int j = 0; j < 720; j++){
                 for(int k = 0; k < 1280; k++){
+                    counter++;
+                    if(counter == target){
+                        counter = 0;
+                        cout << "Converting binary to images: [" << loader << "]" << loadIdx << '%' << '\r' << flush;
+                        loader[loadIdx] = '#';
+                        loadIdx++;
+                    }
                     if(idx == characters.size()){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,255);
                         goto save;
@@ -79,13 +106,16 @@ int main() {
             numImages++;
             imwrite("outputImages/" + imageName, image);
         }
-        
-        inputFile3.close();
+        cout << "Converting binary to images: " << "[####################################################################################################]100%" << endl;
 
 
-        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 24, Size(1280, 720));
+        int original_stderr = dup(fileno(stderr));
+        freopen("/dev/null", "w", stderr);
+        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 24.0, Size(1280, 720));
+        dup2(original_stderr, fileno(stderr));
+        close(original_stderr);
 
-            if (!video.isOpened()) {
+        if (!video.isOpened()) {
             cout << "Error: Could not open the video writer." << endl;
             return -1;
         }
@@ -97,8 +127,8 @@ int main() {
         }
         video.release();
         
-
-    //if(choice == 1){
+    }
+    if(choice == 1){
         VideoCapture decodeVid("outputVideo.avi");
 
         int frameNum = 0;
@@ -140,8 +170,7 @@ int main() {
                     }
                 }
                 if(done) break;
-            }
-            
+            } 
             if(done) break;
         }
         outputFile4.close();
@@ -161,6 +190,6 @@ int main() {
         inputFile4.close();
         outputFile5.close();
 
-   // }
+    }
     return 0;
 }
