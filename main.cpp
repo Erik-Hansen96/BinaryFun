@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <filesystem>
 #include <unistd.h>
+#include <chrono>
 
 using namespace cv;
 using namespace std;
@@ -15,23 +16,21 @@ int main() {
     string name;
 
     cout << "Please type your filename with the file extension:\n";
-    cin >> name;
+    //cin >> name;
+    name = "input.mp4";
 
     cout << "press 1 to decode or 0 to encode\n";
     int choice;
     cin >> choice;
     if(choice == 0){
+        
+        auto start = std::chrono::high_resolution_clock::now();
 
         ifstream inputFile(name, ios::binary);
 
-        ofstream outputFile("binary_data.txt", ios::binary);
 
         if (!inputFile.is_open()) {
             cout << "Error opening input file." << endl;
-            return 1;
-        }
-        if (!outputFile.is_open()) {
-            cout << "Error opening output file." << endl;
             return 1;
         }
 
@@ -39,21 +38,20 @@ int main() {
         uintmax_t target = fileSize / 100;
         uintmax_t counter = 0;
         int loadIdx = 0;
-
         vector<char> characters;
-        char ch;
-    
+        characters.reserve(fileSize*8);
+
         char buffer;
         string loader = "                                                                                                    ";
-        while (inputFile.get(buffer)) {
-
-            bitset<8> binary(buffer);
-            outputFile << binary;
-            characters.push_back(buffer);
+        while (inputFile.read(&buffer, sizeof(buffer))) {
+            for (int i = 7; i >= 0; --i) {
+                char bit = (buffer >> i) & 1;
+                characters.push_back(bit + '0');
+            }
             counter++;
-            if(counter == target){
+            if (counter == target and loadIdx < 100) {
                 counter = 0;
-                cout << "Converting to binary: [" << loader << "]" << loadIdx << '%' << '\r' << flush;
+                std::cout << "Converting to binary: [" << loader << "]" << loadIdx << '%' << '\r' << std::flush;
                 loader[loadIdx] = '#';
                 loadIdx++;
             }
@@ -62,11 +60,6 @@ int main() {
         cout << "Converting to binary: " << "[####################################################################################################]100%" << endl;
 
         inputFile.close();
-        outputFile.close();
-        
-
-        cout << "File content saved in binary_data.txt." << endl;
-
 
         int idx = 0;
         int numImages = 0;
@@ -75,27 +68,29 @@ int main() {
         loader = "                                                                                                    ";
         target = characters.size() / 100;
         loadIdx = 0;
+        uintmax_t vecSize = characters.size();
+        char* charPtr = characters.data();
 
 
-        for(int i = 0; i < (characters.size()/(1280*720))+1; i++){
+        for(int i = 0; i < (vecSize/(1280*720))+1; i++){
             Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
             for(int j = 0; j < 720; j++){
                 for(int k = 0; k < 1280; k++){
                     counter++;
-                    if(counter == target){
+                    if(counter == target and loadIdx < 100){
                         counter = 0;
                         cout << "Converting binary to images: [" << loader << "]" << loadIdx << '%' << '\r' << flush;
                         loader[loadIdx] = '#';
                         loadIdx++;
                     }
-                    if(idx == characters.size()){
+                    if(idx == vecSize){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,255);
                         goto save;
                     }
-                    else if(characters.at(idx) == '0'){
+                    else if(charPtr[idx] == '0'){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,0);
                     }
-                    else if(characters.at(idx) == '1'){
+                    else if(charPtr[idx] == '1'){
                         image.at<Vec3b>(j,k) = Vec3b(255,255,255);
                     }
                     idx++;
@@ -108,6 +103,7 @@ int main() {
         }
         cout << "Converting binary to images: " << "[####################################################################################################]100%" << endl;
 
+        //inputFile3.close();
 
         int original_stderr = dup(fileno(stderr));
         freopen("/dev/null", "w", stderr);
@@ -120,12 +116,31 @@ int main() {
             return -1;
         }
 
+        counter = 0;
+        loader = "                                                                                                    ";
+        target = numImages / 100;
+        loadIdx = 0;
+        
         for(int i = 0; i < numImages; i++){
+            counter++;
+            if(counter == target and loadIdx < 100){
+                counter = 0;
+                cout << "Generating video: [" << loader << "]" << loadIdx << '%' << '\r' << flush;
+                loader[loadIdx] = '#';
+                loadIdx++;
+            }
             string filename = "outputImages/image" + to_string(i) + ".png";
             Mat frame = imread(filename);
             video.write(frame);
         }
+        cout << "Generating video: " << "[####################################################################################################]100%" << endl;
+
         video.release();
+
+
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+    cout << "Elapsed time: " << duration.count() << " seconds." << endl;
         
     }
     if(choice == 1){

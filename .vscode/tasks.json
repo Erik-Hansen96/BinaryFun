@@ -6,6 +6,7 @@
 			"label": "C/C++: g++-11 build active file",
 			"command": "/usr/bin/g++-11",
 			"args": [
+				"-O3",
 				"-fdiagnostics-color=always",
 				"-g",
 				"${file}",
