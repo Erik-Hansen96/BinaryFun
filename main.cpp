@@ -125,7 +125,7 @@ int main() {
 
         int original_stderr = dup(fileno(stderr));
         freopen("/dev/null", "w", stderr);
-        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 24.0, Size(1280, 720));
+        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('F', 'F', 'V', '1'), 24.0, Size(1280, 720));
         dup2(original_stderr, fileno(stderr));
         close(original_stderr);
 
