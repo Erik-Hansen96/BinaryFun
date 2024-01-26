@@ -16,8 +16,19 @@ int main() {
     string name;
 
     cout << "Please type your filename with the file extension:\n";
-    //cin >> name;
-    name = "input.mp4";
+    cin >> name;
+    string extension;
+    bool pass = false;
+    for(char c : name){
+        if(c == '.') pass = true;
+        if(pass) extension += c;
+    }
+
+    string binaryExtension;
+    for(char c : extension){
+        bitset<8> binary(c);
+        binaryExtension += binary.to_string();
+    }
 
     cout << "press 1 to decode or 0 to encode\n";
     int choice;
@@ -57,6 +68,7 @@ int main() {
             }
         }
 
+
         cout << "Converting to binary: " << "[####################################################################################################]100%" << endl;
 
         inputFile.close();
@@ -68,11 +80,14 @@ int main() {
         loader = "                                                                                                    ";
         target = characters.size() / 100;
         loadIdx = 0;
-        uintmax_t vecSize = characters.size();
-        char* charPtr = characters.data();
+        uintmax_t vecSize = characters.size()-1;
+        for(char c : binaryExtension) characters.push_back(c);
+
+        const char* charPtr = characters.data();
+        size_t repetitions = (characters.size()/(1280*720)) + 1;
 
 
-        for(int i = 0; i < (vecSize/(1280*720))+1; i++){
+        for(int i = 0; i < repetitions; i++){
             Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
             for(int j = 0; j < 720; j++){
                 for(int k = 0; k < 1280; k++){
@@ -85,7 +100,10 @@ int main() {
                     }
                     if(idx == vecSize){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,255);
-                        goto save;
+                        vecSize = characters.size();
+                        idx++;
+                        continue;
+                        //goto save;
                     }
                     else if(charPtr[idx] == '0'){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,0);
@@ -96,7 +114,7 @@ int main() {
                     idx++;
                 }
             }
-        save:
+        //save:
             imageName = "image" + to_string(numImages) + ".png";
             numImages++;
             imwrite("outputImages/" + imageName, image);
@@ -144,7 +162,7 @@ int main() {
         
     }
     if(choice == 1){
-        VideoCapture decodeVid("outputVideo.avi");
+        VideoCapture decodeVid(name);
 
         int frameNum = 0;
         while(true){
@@ -160,38 +178,50 @@ int main() {
         decodeVid.release();
 
 
+
         Vec3b pixelValue;
         ofstream outputFile4("binary_data2.txt");
         char one = '1';
         char zero = '0';
+        bool seenRed = false;
         bool done = false;
         string frameName;
         Mat frameImage;
         int valSum;
+        extension = "";
 
         for(int i = 0; i < frameNum; i++){
             frameName = "frames/frame" + to_string(i) + ".png";
             frameImage = imread(frameName);
-
             for(int j = 0; j < 720; j++){
                 for(int k = 0; k < 1280; k++){
                     pixelValue = frameImage.at<Vec3b>(j,k);
                     valSum = static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    if(valSum < 45) outputFile4 << zero;
-                    else if(valSum > 720) outputFile4 << one;
-                    else{ 
-                        done = true; 
-                        break;
+                    if(seenRed){
+                        if(valSum < 45) extension += zero;
+                        else if(valSum > 720) extension += one;
+                        else{
+                            done = true;
+                            break;
+                        }
                     }
+                    else if(valSum < 45 and !seenRed) outputFile4 << zero;
+                    else if(valSum > 720 and !seenRed) outputFile4 << one;
+                    else seenRed = true;
                 }
                 if(done) break;
             } 
             if(done) break;
         }
         outputFile4.close();
+        name = "DecodedFile";
+        for(int i = 0; i < extension.length(); i+= 8){
+            bitset<8> binary(extension.substr(i,8));
+            name += static_cast<char>(binary.to_ulong());
+        }
 
         ifstream inputFile4("binary_data2.txt");
-        ofstream outputFile5("decoded" + name, ios::binary);
+        ofstream outputFile5(name, ios::binary);
 
         stringstream buffer3;
         buffer3 << inputFile4.rdbuf();

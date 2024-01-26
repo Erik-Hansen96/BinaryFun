@@ -11,7 +11,7 @@
 				"-g",
 				"${file}",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}",
+				"${fileDirname}/${fileBasenameNoExtension}.exe",
 				"-I/usr/local/include/opencv4",
 				"-lopencv_core",
 				"-lopencv_highgui",
