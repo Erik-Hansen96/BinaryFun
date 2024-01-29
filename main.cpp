@@ -13,6 +13,12 @@ using namespace std;
 
 int main() {
     
+    Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
+    imwrite("image0.png", image);
+    Mat image2(720, 1280, CV_8UC3, Scalar(0, 0, 0));
+    imwrite("frame0.png", image);
+    return 0;
+
     string name;
 
     cout << "Please type your filename with the file extension:\n";
@@ -108,7 +114,6 @@ int main() {
                         done = true;
                         idx++;
                         continue;
-                        //goto save;
                     }
                     else if(charPtr[idx] == '0'){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,0);
