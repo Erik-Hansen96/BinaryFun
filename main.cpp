@@ -73,6 +73,7 @@ int main() {
 
         inputFile.close();
 
+
         int idx = 0;
         int numImages = 0;
         string imageName;
@@ -80,11 +81,13 @@ int main() {
         loader = "                                                                                                    ";
         target = characters.size() / 100;
         loadIdx = 0;
+        bool done = false;
         uintmax_t vecSize = characters.size()-1;
         for(char c : binaryExtension) characters.push_back(c);
 
         const char* charPtr = characters.data();
         size_t repetitions = (characters.size()/(1280*720)) + 1;
+        cout << repetitions << endl;
 
 
         for(int i = 0; i < repetitions; i++){
@@ -101,6 +104,8 @@ int main() {
                     if(idx == vecSize){
                         image.at<Vec3b>(j,k) = Vec3b(0,0,255);
                         vecSize = characters.size();
+                        if(done) goto save;
+                        done = true;
                         idx++;
                         continue;
                         //goto save;
@@ -114,13 +119,12 @@ int main() {
                     idx++;
                 }
             }
-        //save:
+        save:
             imageName = "image" + to_string(numImages) + ".png";
             numImages++;
             imwrite("outputImages/" + imageName, image);
         }
         cout << "Converting binary to images: " << "[####################################################################################################]100%" << endl;
-
         //inputFile3.close();
 
         int original_stderr = dup(fileno(stderr));
