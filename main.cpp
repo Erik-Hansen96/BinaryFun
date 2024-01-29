@@ -12,12 +12,6 @@ using namespace cv;
 using namespace std;
 
 int main() {
-    
-    Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
-    imwrite("image0.png", image);
-    Mat image2(720, 1280, CV_8UC3, Scalar(0, 0, 0));
-    imwrite("frame0.png", image);
-    return 0;
 
     string name;
 
