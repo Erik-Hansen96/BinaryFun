@@ -74,7 +74,7 @@ int main() {
         inputFile.close();
 
 
-        int idx = 0;
+        uintmax_t idx = 0;
         int numImages = 0;
         string imageName;
         counter = 0;
@@ -82,18 +82,18 @@ int main() {
         target = characters.size() / 100;
         loadIdx = 0;
         bool done = false;
+        bool exitLoop = false;
         uintmax_t vecSize = characters.size()-1;
         for(char c : binaryExtension) characters.push_back(c);
 
         const char* charPtr = characters.data();
-        size_t repetitions = (characters.size()/(1280*720)) + 1;
-        cout << repetitions << endl;
+        size_t repetitions = ((characters.size()*16)/(640*360)) + 1;
 
 
         for(int i = 0; i < repetitions; i++){
-            Mat image(720, 1280, CV_8UC3, Scalar(0, 0, 0));
-            for(int j = 0; j < 720; j++){
-                for(int k = 0; k < 1280; k++){
+            Mat image(360, 640, CV_8UC3, Scalar(0, 0, 0));
+            for(int j = 0; j < 360 and !exitLoop; j = j+4){
+                for(int k = 0; k < 640; k = k+4){
                     counter++;
                     if(counter == target and loadIdx < 100){
                         counter = 0;
@@ -102,23 +102,72 @@ int main() {
                         loadIdx++;
                     }
                     if(idx == vecSize){
-                        image.at<Vec3b>(j,k) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j,k)     = Vec3b(0,0,255);
+                        image.at<Vec3b>(j,k+1)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j,k+2)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j,k+3)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+1,k)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+1,k+1) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+1,k+2) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+1,k+3) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+2,k)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+2,k+1) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+2,k+2) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+2,k+3) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+3,k)   = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+3,k+1) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+3,k+2) = Vec3b(0,0,255);
+                        image.at<Vec3b>(j+3,k+3) = Vec3b(0,0,255);
                         vecSize = characters.size();
-                        if(done) goto save;
+                        if(done){
+                            exitLoop = true;
+                            break;
+                        }
                         done = true;
                         idx++;
                         continue;
                     }
+                    
                     else if(charPtr[idx] == '0'){
-                        image.at<Vec3b>(j,k) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j,k)     = Vec3b(0,0,0);
+                        image.at<Vec3b>(j,k+1)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j,k+2)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j,k+3)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+1,k)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+1,k+1) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+1,k+2) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+1,k+3) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+2,k)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+2,k+1) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+2,k+2) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+2,k+3) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+3,k)   = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+3,k+1) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+3,k+2) = Vec3b(0,0,0);
+                        image.at<Vec3b>(j+3,k+3) = Vec3b(0,0,0);
                     }
+                    
                     else if(charPtr[idx] == '1'){
-                        image.at<Vec3b>(j,k) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j,k)     = Vec3b(255,255,255);
+                        image.at<Vec3b>(j,k+1)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j,k+2)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j,k+3)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+1,k)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+1,k+1) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+1,k+2) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+1,k+3) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+2,k)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+2,k+1) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+2,k+2) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+2,k+3) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+3,k)   = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+3,k+1) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+3,k+2) = Vec3b(255,255,255);
+                        image.at<Vec3b>(j+3,k+3) = Vec3b(255,255,255);
                     }
                     idx++;
                 }
             }
-        save:
             imageName = "image" + to_string(numImages) + ".png";
             numImages++;
             imwrite("outputImages/" + imageName, image);
@@ -128,7 +177,7 @@ int main() {
 
         int original_stderr = dup(fileno(stderr));
         freopen("/dev/null", "w", stderr);
-        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('F', 'F', 'V', '1'), 24.0, Size(1280, 720));
+        VideoWriter video("outputVideo.avi", VideoWriter::fourcc('F', 'F', 'V', '1'), 24.0, Size(640, 360));
         dup2(original_stderr, fileno(stderr));
         close(original_stderr);
 
@@ -196,20 +245,50 @@ int main() {
         for(int i = 0; i < frameNum; i++){
             frameName = "frames/frame" + to_string(i) + ".png";
             frameImage = imread(frameName);
-            for(int j = 0; j < 720; j++){
-                for(int k = 0; k < 1280; k++){
+            for(int j = 0; j < 360; j = j+4){
+                for(int k = 0; k < 640; k = k+4){
                     pixelValue = frameImage.at<Vec3b>(j,k);
-                    valSum = static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    valSum     = static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j,k+1);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j,k+2);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j,k+3);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+1,k);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+1,k+1);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+1,k+2);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+1,k+3);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+2,k);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+2,k+1);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+2,k+3);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+3,k);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+3,k+1);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+3,k+2);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+3,k+2);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    pixelValue = frameImage.at<Vec3b>(j+3,k+3);
+                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
                     if(seenRed){
-                        if(valSum < 45) extension += zero;
-                        else if(valSum > 720) extension += one;
+                        if(valSum < 2040) extension += zero;
+                        else if(valSum > 6160) extension += one;
                         else{
                             done = true;
                             break;
                         }
                     }
-                    else if(valSum < 45 and !seenRed) outputFile4 << zero;
-                    else if(valSum > 720 and !seenRed) outputFile4 << one;
+                    else if(valSum < 2040 and !seenRed) outputFile4 << zero;
+                    else if(valSum > 6160 and !seenRed) outputFile4 << one;
                     else seenRed = true;
                 }
                 if(done) break;
