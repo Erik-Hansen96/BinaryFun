@@ -11,29 +11,50 @@
 using namespace cv;
 using namespace std;
 
+void encode(const string& name);
+void decode(const string& name);
+
+string getExtension(const string& fileName){
+    string extension;
+    bool pass = false;
+
+    for(char c : fileName){
+        if(c == '.') pass = true;
+        if(pass) extension += c;
+    }
+    return extension;
+}
+
+string textToBinary(const string& text){
+    string binaryText;
+    for(char c : text){
+        bitset<8> binary(c);
+        binaryText += binary.to_string();
+    }
+    return binaryText;
+}
+
 int main() {
 
     string name;
 
     cout << "Please type your filename with the file extension:\n";
     getline(cin, name);
-    string extension;
-    bool pass = false;
-    for(char c : name){
-        if(c == '.') pass = true;
-        if(pass) extension += c;
-    }
 
-    string binaryExtension;
-    for(char c : extension){
-        bitset<8> binary(c);
-        binaryExtension += binary.to_string();
-    }
 
     cout << "press 1 to decode or 0 to encode\n";
     int choice;
     cin >> choice;
+
     if(choice == 0){
+        encode(name);
+    } else if(choice == 1){
+        decode(name);
+    }
+    return 0;
+}
+
+void encode(const string& name){
         
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -42,7 +63,7 @@ int main() {
 
         if (!inputFile.is_open()) {
             cout << "Error opening input file." << endl;
-            return 1;
+            return;
         }
 
         uintmax_t fileSize = filesystem::file_size(name);
@@ -68,11 +89,12 @@ int main() {
             }
         }
 
+        
+
 
         cout << "Converting to binary: " << "[####################################################################################################]100%" << endl;
 
         inputFile.close();
-
 
         uintmax_t idx = 0;
         int numImages = 0;
@@ -84,6 +106,11 @@ int main() {
         bool done = false;
         bool exitLoop = false;
         uintmax_t vecSize = characters.size()-1;
+
+        string binaryExtension = getExtension(name);
+        binaryExtension = textToBinary(binaryExtension);
+        
+
         for(char c : binaryExtension) characters.push_back(c);
 
         const char* charPtr = characters.data();
@@ -158,13 +185,15 @@ int main() {
     auto duration = chrono::duration_cast<chrono::seconds>(end - start);
     cout << "Elapsed time: " << duration.count() << " seconds." << endl;
         
-    }
-    if(choice == 1){
+}
+
+
+void decode(const string& name){
         VideoCapture decodeVid(name);
 
         if(!decodeVid.open(name)){
             cout << "Error opening encoded video" << endl;
-            return -1;
+            return;
         }
 
         int frameNum = 0;
@@ -192,7 +221,7 @@ int main() {
         string frameName;
         Mat frameImage;
         int valSum;
-        extension = "";
+        string extension = "";
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -230,14 +259,14 @@ int main() {
         cout << "Elapsed time: " << duration.count() << " seconds." << endl;
 
         outputFile4.close();
-        name = "DecodedFile";
+        string exportName = "DecodedFile";
         for(int i = 0; i < extension.length(); i+= 8){
             bitset<8> binary(extension.substr(i,8));
-            name += static_cast<char>(binary.to_ulong());
+            exportName += static_cast<char>(binary.to_ulong());
         }
 
         ifstream inputFile4("binary_data2.txt");
-        ofstream outputFile5(name, ios::binary);
+        ofstream outputFile5(exportName, ios::binary);
 
         stringstream buffer3;
         buffer3 << inputFile4.rdbuf();
@@ -251,6 +280,4 @@ int main() {
         inputFile4.close();
         outputFile5.close();
 
-    }
-    return 0;
 }
