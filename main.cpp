@@ -16,7 +16,7 @@ int main() {
     string name;
 
     cout << "Please type your filename with the file extension:\n";
-    cin >> name;
+    getline(cin, name);
     string extension;
     bool pass = false;
     for(char c : name){
@@ -102,22 +102,7 @@ int main() {
                         loadIdx++;
                     }
                     if(idx == vecSize){
-                        image.at<Vec3b>(j,k)     = Vec3b(0,0,255);
-                        image.at<Vec3b>(j,k+1)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j,k+2)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j,k+3)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+1,k)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+1,k+1) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+1,k+2) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+1,k+3) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+2,k)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+2,k+1) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+2,k+2) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+2,k+3) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+3,k)   = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+3,k+1) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+3,k+2) = Vec3b(0,0,255);
-                        image.at<Vec3b>(j+3,k+3) = Vec3b(0,0,255);
+                        image(Rect(k,j,4,4)) = Vec3b(0, 0, 255);
                         vecSize = characters.size();
                         if(done){
                             exitLoop = true;
@@ -127,43 +112,8 @@ int main() {
                         idx++;
                         continue;
                     }
-                    
-                    else if(charPtr[idx] == '0'){
-                        image.at<Vec3b>(j,k)     = Vec3b(0,0,0);
-                        image.at<Vec3b>(j,k+1)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j,k+2)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j,k+3)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+1,k)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+1,k+1) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+1,k+2) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+1,k+3) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+2,k)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+2,k+1) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+2,k+2) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+2,k+3) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+3,k)   = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+3,k+1) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+3,k+2) = Vec3b(0,0,0);
-                        image.at<Vec3b>(j+3,k+3) = Vec3b(0,0,0);
-                    }
-                    
                     else if(charPtr[idx] == '1'){
-                        image.at<Vec3b>(j,k)     = Vec3b(255,255,255);
-                        image.at<Vec3b>(j,k+1)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j,k+2)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j,k+3)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+1,k)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+1,k+1) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+1,k+2) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+1,k+3) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+2,k)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+2,k+1) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+2,k+2) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+2,k+3) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+3,k)   = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+3,k+1) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+3,k+2) = Vec3b(255,255,255);
-                        image.at<Vec3b>(j+3,k+3) = Vec3b(255,255,255);
+                        image(Rect(k,j,4,4)) = Vec3b(255, 255, 255);
                     }
                     idx++;
                 }
@@ -173,7 +123,7 @@ int main() {
             imwrite("outputImages/" + imageName, image);
         }
         cout << "Converting binary to images: " << "[####################################################################################################]100%" << endl;
-        //inputFile3.close();
+
 
         int original_stderr = dup(fileno(stderr));
         freopen("/dev/null", "w", stderr);
@@ -181,10 +131,6 @@ int main() {
         dup2(original_stderr, fileno(stderr));
         close(original_stderr);
 
-        if (!video.isOpened()) {
-            cout << "Error: Could not open the video writer." << endl;
-            return -1;
-        }
 
         counter = 0;
         loader = "                                                                                                    ";
@@ -216,6 +162,11 @@ int main() {
     if(choice == 1){
         VideoCapture decodeVid(name);
 
+        if(!decodeVid.open(name)){
+            cout << "Error opening encoded video" << endl;
+            return -1;
+        }
+
         int frameNum = 0;
         while(true){
             Mat frame;
@@ -237,53 +188,33 @@ int main() {
         char zero = '0';
         bool seenRed = false;
         bool done = false;
+        bool exitLoop = false;
         string frameName;
         Mat frameImage;
         int valSum;
         extension = "";
 
+        auto start = std::chrono::high_resolution_clock::now();
+
         for(int i = 0; i < frameNum; i++){
             frameName = "frames/frame" + to_string(i) + ".png";
             frameImage = imread(frameName);
-            for(int j = 0; j < 360; j = j+4){
+            for(int j = 0; j < 360 and !exitLoop; j = j+4){
                 for(int k = 0; k < 640; k = k+4){
-                    pixelValue = frameImage.at<Vec3b>(j,k);
-                    valSum     = static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j,k+1);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j,k+2);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j,k+3);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+1,k);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+1,k+1);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+1,k+2);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+1,k+3);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+2,k);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+2,k+1);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+2,k+3);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+3,k);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+3,k+1);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+3,k+2);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+3,k+2);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
-                    pixelValue = frameImage.at<Vec3b>(j+3,k+3);
-                    valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                    valSum = 0;
+
+                    for(int x = 0; x < 4; x++){
+                        for(int y = 0; y < 4; y++){
+                            pixelValue = frameImage.at<Vec3b>(j+x,k+y);
+                            valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
+                        }
+                    }
+                    
                     if(seenRed){
                         if(valSum < 2040) extension += zero;
                         else if(valSum > 6160) extension += one;
                         else{
-                            done = true;
+                            exitLoop = true;
                             break;
                         }
                     }
@@ -291,10 +222,13 @@ int main() {
                     else if(valSum > 6160 and !seenRed) outputFile4 << one;
                     else seenRed = true;
                 }
-                if(done) break;
             } 
-            if(done) break;
         }
+
+        auto end = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+        cout << "Elapsed time: " << duration.count() << " seconds." << endl;
+
         outputFile4.close();
         name = "DecodedFile";
         for(int i = 0; i < extension.length(); i+= 8){
