@@ -13,18 +13,17 @@ using namespace std;
 
 void encode(const string& name);
 void decode(const string& name);
+void thirdOption(const string& name);
 
-string getExtension(const string& fileName){
-    string extension;
+string getExtension(const string& fileName){ //Gets the inputted file extension
+    string extension;                        //
     bool pass = false;
-
     for(char c : fileName){
         if(c == '.') pass = true;
         if(pass) extension += c;
     }
     return extension;
 }
-
 string textToBinary(const string& text){
     string binaryText;
     for(char c : text){
@@ -53,6 +52,7 @@ int main() {
     }
     return 0;
 }
+
 
 void encode(const string& name){
         
@@ -88,9 +88,6 @@ void encode(const string& name){
                 loadIdx++;
             }
         }
-
-        
-
 
         cout << "Converting to binary: " << "[####################################################################################################]100%" << endl;
 
@@ -189,28 +186,15 @@ void encode(const string& name){
 
 
 void decode(const string& name){
-        VideoCapture decodeVid(name);
+        auto start = std::chrono::high_resolution_clock::now();
 
+        VideoCapture decodeVid(name);
         if(!decodeVid.open(name)){
             cout << "Error opening encoded video" << endl;
             return;
         }
 
         int frameNum = 0;
-        while(true){
-            Mat frame;
-            decodeVid >> frame;
-
-            if(frame.empty()) break;
-
-            string filename = "frames/frame" + to_string(frameNum) + ".png";
-            imwrite(filename, frame);
-            frameNum++;
-        }
-        decodeVid.release();
-
-
-
         Vec3b pixelValue;
         ofstream outputFile4("binary_data2.txt");
         char one = '1';
@@ -223,44 +207,43 @@ void decode(const string& name){
         int valSum;
         string extension = "";
 
-        auto start = std::chrono::high_resolution_clock::now();
+        while(!exitLoop){
+            Mat frame;
+            decodeVid >> frame;    //Pull a frame from video
+            //if(frame.empty()) break;
 
-        for(int i = 0; i < frameNum; i++){
-            frameName = "frames/frame" + to_string(i) + ".png";
-            frameImage = imread(frameName);
-            for(int j = 0; j < 360 and !exitLoop; j = j+4){
-                for(int k = 0; k < 640; k = k+4){
+            for(int j = 0; j < 360 and !exitLoop; j = j+4){     //Pixel rows
+                for(int k = 0; k < 640; k = k+4){               //Pixel columns
                     valSum = 0;
-
-                    for(int x = 0; x < 4; x++){
-                        for(int y = 0; y < 4; y++){
-                            pixelValue = frameImage.at<Vec3b>(j+x,k+y);
+                    for(int x = 0; x < 4; x++){                 //Each bit is represented by 4x4 pixel matrix.
+                        for(int y = 0; y < 4; y++){             //Combine pixels' BGR value  
+                            pixelValue = frame.at<Vec3b>(j+x,k+y);
                             valSum    += static_cast<int>(pixelValue[0]) + static_cast<int>(pixelValue[1]) + static_cast<int>(pixelValue[2]);
                         }
-                    }
-                    
-                    if(seenRed){
-                        if(valSum < 2040) extension += zero;
-                        else if(valSum > 6160) extension += one;
-                        else{
+                    }                                            //If we've seen red pixels, that means we are now looking at
+                    if(seenRed){                                 //bits that represent the original file's extension so we know what to save it as
+                        if(valSum < 2040) extension += zero;     //Black  
+                        else if(valSum > 6160) extension += one; //White
+                        else{                                    //Second red pixel means we're done.   
                             exitLoop = true;
                             break;
                         }
-                    }
-                    else if(valSum < 2040 and !seenRed) outputFile4 << zero;
-                    else if(valSum > 6160 and !seenRed) outputFile4 << one;
-                    else seenRed = true;
+                    }                                                           //Haven't seen red pixels yet, so this is just the original file's data
+                    else if(valSum < 2040 and !seenRed) outputFile4 << zero;    //Black pixels
+                    else if(valSum > 6160 and !seenRed) outputFile4 << one;     //White pixels
+                    else seenRed = true;                                        //Red pixels means next data we see is file extension
                 }
             } 
         }
+        decodeVid.release();
 
         auto end = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::seconds>(end - start);
         cout << "Elapsed time: " << duration.count() << " seconds." << endl;
 
         outputFile4.close();
-        string exportName = "DecodedFile";
-        for(int i = 0; i < extension.length(); i+= 8){
+        string exportName = "DecodedFile";                  
+        for(int i = 0; i < extension.length(); i+= 8){          //Translate the binary extension into plain text
             bitset<8> binary(extension.substr(i,8));
             exportName += static_cast<char>(binary.to_ulong());
         }
