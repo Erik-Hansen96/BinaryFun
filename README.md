@@ -1,6 +1,6 @@
 # YouTube Data Archive
 
-The YouTube Data Archive project is a C++ application using OpenCV to convert any file into binary data, visually represent it as black and white pixel videos. With this, you can store any file you want on YouTube! (or anywhere else you can store videos for free)
+The YouTube Data Archive project is a C++ application using OpenCV to convert any file into binary data, visually represent it as black and white pixel videos, and decode it back into its original file. With this, you can store any file you want on YouTube! (or anywhere else you can store videos for free)
 
 ## Features
 
