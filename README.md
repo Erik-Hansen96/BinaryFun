@@ -29,6 +29,12 @@ The YouTube Data Archive project is a C++ application using OpenCV to convert an
    - Select the decoding option (1).
    - The program will extract the original file extension and recreate the original file.
 
+## Demo
+[![Demo](https://i9.ytimg.com/vi_webp/S5wPh5hO72s/mq2.webp?sqp=CPDr_K0G-oaymwEmCMACELQB8quKqQMa8AEB-AH-BIAC6AKKAgwIABABGGUgZShlMA8=&rs=AOn4CLB5fOJdwatn5x8kNNR77jT6PiRy7w)](https://youtu.be/S5wPh5hO72s?si=2vxBr9fxUGUjlHQx)
+  
+  Click the image to see an example video. This is actually a .rar of the entire repository!
+
+
 ## Prerequisites
 
 - C++ compiler
